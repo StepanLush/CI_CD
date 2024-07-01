@@ -45,11 +45,13 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'github-credentials', passwordVariable: 'GITHUB_PASSWORD', usernameVariable: 'GITHUB_USERNAME')]) {
-                        sh 'git config user.email "lusickijstepan@gmail.com"'
-                        sh 'git config user.name "StepanLush"'
-                        sh 'git add k8s/deployment.yaml'
-                        sh 'git commit -m "Update deployment.yaml with new Docker image tag ${env.DOCKER_IMAGE_TAG}"'
-                        sh 'git push https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/StepanLush/CI_CD.git HEAD:master'
+                        sh '''
+                        git config user.email "lusickijstepan@gmail.com"
+                        git config user.name "StepanLush"
+                        git add k8s/deployment.yaml
+                        git commit -m "Update deployment.yaml with new Docker image tag ${DOCKER_IMAGE_TAG}"
+                        git push https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/StepanLush/CI_CD.git HEAD:master
+                        '''
                     }
                 }
             }
