@@ -18,7 +18,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {                    
-                    def dockerImage = docker.build("stepanlushch/my-nginx-app:dev-${env.BUILD_NUMBER}-${env.BUILD_ID}")
+                    def dockerImage = docker.build("stepanlushch/my-nginx-app:dev-${env.BUILD_ID}")
                     env.DOCKER_IMAGE_TAG = dockerImage.id
                 }
             }
@@ -30,6 +30,14 @@ pipeline {
                     docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-credentials') {
                         docker.image(env.DOCKER_IMAGE_TAG).push()
                     }
+                }
+            }
+        }
+        
+        stage('Update Deployment') {
+            steps {
+                script {
+                    sh "sed -i 's|image: stepanlushch/my-nginx-app:.*|image: ${env.DOCKER_IMAGE_TAG}|' k8s/deployment.yaml"
                 }
             }
         }
