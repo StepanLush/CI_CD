@@ -6,6 +6,7 @@ pipeline {
         IMAGE = "my-nginx-app"
         TAG = "latest"
         KUBE_CONTEXT = "minikube"
+        KUBECONFIG = "/var/lib/jenkins/.kube/config"
     }
 
     stages {
@@ -26,7 +27,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('', 'docker-credentials-id') {
+                    docker.withRegistry('https://index.docker.io/v1/', 'docker-credentials-id') {
                         docker.image("${env.REGISTRY}/${env.IMAGE}:${env.TAG}").push()
                     }
                 }
@@ -44,5 +45,6 @@ pipeline {
 }
 
 def kubectl(command) {
-    sh "kubectl --context ${env.KUBE_CONTEXT} ${command}"
+    sh "kubectl --kubeconfig ${env.KUBECONFIG} --context ${env.KUBE_CONTEXT} ${command}"
 }
+
