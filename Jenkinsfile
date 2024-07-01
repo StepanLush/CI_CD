@@ -30,14 +30,9 @@ pipeline {
         }
         stage('Deploy to Minikube') {
             steps {
-                script {
-                    // Use the Minikube config file from the credentials
-                    def minikubeConfigFile = "${env.WORKSPACE}/.kube/config"
-                    writeFile file: minikubeConfigFile, text: MINIKUBE_CONFIG
-                    sh 'kubectl --kubeconfig ${minikubeConfigFile} apply -f k8s/deployment.yaml'
-                }
+                sh 'kubectl --kubeconfig /var/lib/jenkins/.kube/config apply -f k8s/deployment.yaml'
+                sh 'kubectl --kubeconfig /var/lib/jenkins/.kube/config apply -f k8s/service.yaml'
             }
         }
     }
 }
-
