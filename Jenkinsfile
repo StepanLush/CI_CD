@@ -33,7 +33,6 @@ pipeline {
                 }
             }
         }
-        
         stage('Update Deployment') {
             steps {
                 script {
@@ -42,10 +41,24 @@ pipeline {
             }
         }
 
+        stage('Commit and Push Changes') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'github-credentials', passwordVariable: 'GITHUB_PASSWORD', usernameVariable: 'GITHUB_USERNAME')]) {
+                        sh 'git config user.email "lusickijstepan@gmail.com"'
+                        sh 'git config user.name "StepanLush"'
+                        sh 'git add k8s/deployment.yaml'
+                        sh 'git commit -m "Update deployment.yaml with new Docker image tag ${env.DOCKER_IMAGE_TAG}"'
+                        sh 'git push https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/StepanLush/CI_CD.git HEAD:master'
+                    }
+                }
+            }
+        }
+
+
         stage('Deploy to Minikube') {
             steps {
                 script {
-                    sh "sed -i 's|image: stepanlushch/my-nginx-app:.*|image: ${env.DOCKER_IMAGE_TAG}|' k8s/deployment.yaml"
                     sh 'kubectl --kubeconfig /var/lib/jenkins/.kube/config apply -f k8s/deployment.yaml'
                     sh 'kubectl --kubeconfig /var/lib/jenkins/.kube/config apply -f k8s/service.yaml'
                 }
