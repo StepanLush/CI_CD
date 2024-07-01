@@ -46,7 +46,7 @@ pipeline {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'github-credentials', passwordVariable: 'GITHUB_PASSWORD', usernameVariable: 'GITHUB_USERNAME')]) {
                         sh '''
-                        git config user.email "lusickijstepan@gmail.com"
+                            git config user.email "lusickijstepan@gmail.com"
                             git config user.name "StepanLush"
                             git add k8s/deployment.yaml
                             git commit -m "Update deployment.yaml with new Docker image tag ${DOCKER_IMAGE_TAG}"
