@@ -18,7 +18,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {                    
-                    def dockerImage = docker.build("stepanlushch/my-nginx-app:dev-${env.BUILD_ID}")
+                    def dockerImage = docker.build("stepanlushch/my-nginx-app:dev-${env.BUILD_NUMBER}-${env.BUILD_ID}")
                     env.DOCKER_IMAGE_TAG = dockerImage.id
                 }
             }
