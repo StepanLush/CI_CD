@@ -51,7 +51,7 @@ pipeline {
                             git add k8s/deployment.yaml
                             git commit -m "Update deployment.yaml with new Docker image tag ${DOCKER_IMAGE_TAG}"
                             git remote set-url origin https://github.com/StepanLush/CI_CD.git
-                            git push origin HEAD:master
+                            git push -u origin master
                         '''
                     }
                 }
