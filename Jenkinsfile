@@ -3,23 +3,15 @@ pipeline {
 
     environment {
         DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
-        GITHUB_SSH_CREDENTIALS = credentials('github-ssh-credentials')
+        GITHUB_CREDENTIALS = credentials('github-credentials')
     }
 
     stages {
         stage('Checkout') {
             steps {
-                script {
-                    // Ensure the .ssh directory exists
-                    sh '''
-                        mkdir -p ~/.ssh
-                        chmod 700 ~/.ssh
-                        ssh-keyscan github.com >> ~/.ssh/known_hosts
-                    '''
-                }
                 git branch: 'master',
-                    url: 'git@github.com:StepanLush/CI_CD.git',
-                    credentialsId: 'github-ssh-credentials'
+                    url: 'https://github.com/StepanLush/CI_CD',
+                    credentialsId: 'github-credentials'
             }
         }
 
@@ -41,7 +33,6 @@ pipeline {
                 }
             }
         }
-
         stage('Update Deployment') {
             steps {
                 script {
@@ -55,11 +46,6 @@ pipeline {
                 script {
                     withCredentials([sshUserPrivateKey(credentialsId: 'github-ssh-credentials', keyFileVariable: 'SSH_KEY')]) {
                         sh '''
-                            # Ensure the .ssh directory exists
-                            mkdir -p ~/.ssh
-                            chmod 700 ~/.ssh
-                            ssh-keyscan github.com >> ~/.ssh/known_hosts
-
                             git config user.email "lusickijstepan@gmail.com"
                             git config user.name "StepanLush"
                             git add k8s/deployment.yaml
@@ -70,9 +56,7 @@ pipeline {
                     }
                 }
             }
-        }
-
-        stage('Deploy to Minikube') {
+        }be') {
             steps {
                 script {
                     sh 'kubectl --kubeconfig /var/lib/jenkins/.kube/config apply -f k8s/deployment.yaml'
