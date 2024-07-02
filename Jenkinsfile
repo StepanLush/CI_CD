@@ -3,15 +3,23 @@ pipeline {
 
     environment {
         DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
-        GITHUB_CREDENTIALS = credentials('github-credentials')
+        GITHUB_SSH_CREDENTIALS = credentials('github-ssh-credentials')
     }
 
     stages {
         stage('Checkout') {
             steps {
+                script {
+                    // Ensure the .ssh directory exists
+                    sh '''
+                        mkdir -p ~/.ssh
+                        chmod 700 ~/.ssh
+                        ssh-keyscan github.com >> ~/.ssh/known_hosts
+                    '''
+                }
                 git branch: 'master',
-                    url: 'https://github.com/StepanLush/CI_CD',
-                    credentialsId: 'github-credentials'
+                    url: 'git@github.com:StepanLush/CI_CD.git',
+                    credentialsId: 'github-ssh-credentials'
             }
         }
 
@@ -33,6 +41,7 @@ pipeline {
                 }
             }
         }
+
         stage('Update Deployment') {
             steps {
                 script {
@@ -46,7 +55,7 @@ pipeline {
                 script {
                     withCredentials([sshUserPrivateKey(credentialsId: 'github-ssh-credentials', keyFileVariable: 'SSH_KEY')]) {
                         sh '''
-                            
+                            # Ensure the .ssh directory exists
                             mkdir -p ~/.ssh
                             chmod 700 ~/.ssh
                             ssh-keyscan github.com >> ~/.ssh/known_hosts
@@ -61,7 +70,7 @@ pipeline {
                     }
                 }
             }
-
+        }
 
         stage('Deploy to Minikube') {
             steps {
