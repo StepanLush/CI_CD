@@ -7,13 +7,7 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'master',
-                    url: 'git@github.com:StepanLush/CI_CD.git',
-                    credentialsId: 'github-ssh-credentials'
-            }
-        }
+        
 
         stage('Build Docker Image') {
             steps {
