@@ -44,14 +44,14 @@ pipeline {
         stage('Commit and Push Changes') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'github-credentials', passwordVariable: 'GITHUB_PASSWORD', usernameVariable: 'GITHUB_USERNAME')]) {
+                    withCredentials([sshUserPrivateKey(credentialsId: 'github-ssh-credentials', keyFileVariable: 'SSH_KEY')]) {
                         sh '''
                             git config user.email "lusickijstepan@gmail.com"
                             git config user.name "StepanLush"
                             git add k8s/deployment.yaml
                             git commit -m "Update deployment.yaml with new Docker image tag ${DOCKER_IMAGE_TAG}"
-                            git remote set-url origin https://github.com/StepanLush/CI_CD.git
-                            git push -u origin master
+                            git remote set-url origin git@github.com:StepanLush/CI_CD.git
+                            GIT_SSH_COMMAND="ssh -i ${SSH_KEY}" git push -u origin master
                         '''
                     }
                 }
