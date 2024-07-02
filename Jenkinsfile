@@ -10,8 +10,8 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'master',
-                    url: 'https://github.com/StepanLush/CI_CD',
-                    credentialsId: 'github-credentials'
+                    url: 'git@github.com:StepanLush/CI_CD.git',
+                    credentialsId: 'github-ssh-credentials'
             }
         }
 
@@ -33,6 +33,7 @@ pipeline {
                 }
             }
         }
+
         stage('Update Deployment') {
             steps {
                 script {
@@ -56,7 +57,9 @@ pipeline {
                     }
                 }
             }
-        }be') {
+        }
+
+        stage('Deploy to Minikube') {
             steps {
                 script {
                     sh 'kubectl --kubeconfig /var/lib/jenkins/.kube/config apply -f k8s/deployment.yaml'
