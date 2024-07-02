@@ -46,7 +46,9 @@ pipeline {
                 script {
                     withCredentials([sshUserPrivateKey(credentialsId: 'github-ssh-credentials', keyFileVariable: 'SSH_KEY')]) {
                         sh '''
-                            # Add GitHub to known hosts
+                            
+                            mkdir -p ~/.ssh
+                            chmod 700 ~/.ssh
                             ssh-keyscan github.com >> ~/.ssh/known_hosts
 
                             git config user.email "lusickijstepan@gmail.com"
@@ -59,7 +61,6 @@ pipeline {
                     }
                 }
             }
-        }
 
 
         stage('Deploy to Minikube') {
