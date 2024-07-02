@@ -46,6 +46,9 @@ pipeline {
                 script {
                     withCredentials([sshUserPrivateKey(credentialsId: 'github-ssh-credentials', keyFileVariable: 'SSH_KEY')]) {
                         sh '''
+                            # Add GitHub to known hosts
+                            ssh-keyscan github.com >> ~/.ssh/known_hosts
+
                             git config user.email "lusickijstepan@gmail.com"
                             git config user.name "StepanLush"
                             git add k8s/deployment.yaml
