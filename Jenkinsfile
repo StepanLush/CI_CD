@@ -48,7 +48,7 @@ pipeline {
                         git config --global user.email "lusickijstepan@gmail.com"
                         git config --global user.name "StepanLush"
                         git add ./values.yaml
-                        git commit -m "Update values.yaml with new tag dev-${env.BUILD_ID}"
+                        git commit -m "Update values.yaml with new tag"
                         git push origin master
                     '''
                 }
