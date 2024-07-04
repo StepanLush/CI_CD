@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
         GIT_CREDENTIALS = credentials('github-ssh-credentials')
     }
 
@@ -12,31 +11,13 @@ pipeline {
                 git branch: 'master', credentialsId: "${GIT_CREDENTIALS}", url: 'git@github.com:StepanLush/nginx-chart.git'
             }
         }
-        
-        stage('Build Docker Image') {
-            steps {
-                script {                    
-                    def dockerImage = docker.build("stepanlushch/my-nginx-app:dev-${env.BUILD_ID}")
-                    env.DOCKER_IMAGE_TAG = dockerImage.id
-                }
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-credentials') {
-                        docker.image(env.DOCKER_IMAGE_TAG).push()
-                    }
-                }
-            }
-        }
 
         stage('Update values.yaml') {
             steps {
                 script {
+                    def newTag = "dev-${env.BUILD_ID}"
                     def valuesFile = readYaml file: "values.yaml"
-                    valuesFile.image.tag = env.DOCKER_IMAGE_TAG
+                    valuesFile.image.tag = newTag
                     writeYaml file: "values.yaml", data: valuesFile
                 }
             }
@@ -44,13 +25,13 @@ pipeline {
 
         stage('Commit and Push Changes') {
             steps {
-                script { 
+                script {
                     sh '''
                         git config --global user.email "lusickijstepan@gmail.com"
                         git config --global user.name "StepanLush"
                         git add values.yaml
-                        git commit -m "Update values.yaml with new Docker image tag ${DOCKER_IMAGE_TAG}"
-                        git push origin main
+                        git commit -m "Update values.yaml with new tag dev-${env.BUILD_ID}"
+                        git push origin master
                     '''
                 }
             }
