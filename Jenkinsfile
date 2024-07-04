@@ -65,13 +65,5 @@ pipeline {
             }
         }
     }
-
-    post {
-        failure {
-            mail to: 'you@example.com',
-                subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
-                body: "Something went wrong. Please check the Jenkins console output at ${env.BUILD_URL}."
-        }
-    }
 }
 
