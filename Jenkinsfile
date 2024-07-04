@@ -35,7 +35,7 @@ pipeline {
 	    steps {
 		script {
 		    sh """
-		        sed -i 's|tag: .*|tag: ${newTag}|' values.yaml
+		        sed -i 's|tag: .*|tag: ${env.DOCKER_IMAGE_TAG}|' values.yaml
 		    """
 		}
 	    }
