@@ -32,15 +32,14 @@ pipeline {
         }
 
         stage('Update values.yaml') {
-            steps {
-                script {
-                    def newTag = "dev-${env.BUILD_ID}"
-                    def valuesFile = readYaml file: "values.yaml"
-                    valuesFile.image.tag = newTag
-                    writeYaml file: "values.yaml", data: valuesFile
-                }
-            }
-        }
+	    steps {
+		script {
+		    sh """
+		        sed -i 's|tag: .*|tag: ${newTag}|' values.yaml
+		    """
+		}
+	    }
+	}
 
         stage('Commit and Push Changes') {
             steps {
