@@ -59,7 +59,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        helm upgrade my-release ./ -f values.yaml
+                        helm upgrade nginx ./ -f values.yaml
                     '''
                 }
             }
