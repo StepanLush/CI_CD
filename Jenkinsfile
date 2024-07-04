@@ -61,6 +61,7 @@ pipeline {
                 script {
                     sh '''
                         helm upgrade my-release ./ -f values.yaml
+                    '''
                 }
             }
         }
