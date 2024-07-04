@@ -9,9 +9,10 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git credentialsId: "${GIT_CREDENTIALS}", url: 'git@github.com:StepanLush/CI_CD.git'
+                git branch: 'main', credentialsId: "${GIT_CREDENTIALS}", url: 'git@github.com:StepanLush/nginx-chart.git'
             }
         }
+        
         stage('Build Docker Image') {
             steps {
                 script {                    
@@ -31,10 +32,12 @@ pipeline {
             }
         }
 
-        stage('Update Deployment') {
+        stage('Update values.yaml') {
             steps {
                 script {
-                    sh "sed -i 's|image: stepanlushch/my-nginx-app:.*|image: ${env.DOCKER_IMAGE_TAG}|' k8s/deployment.yaml"
+                    def valuesFile = readYaml file: "values.yaml"
+                    valuesFile.image.tag = env.DOCKER_IMAGE_TAG
+                    writeYaml file: "values.yaml", data: valuesFile
                 }
             }
         }
@@ -42,24 +45,32 @@ pipeline {
         stage('Commit and Push Changes') {
             steps {
                 script { 
-	            sh '''
-	                git config --global user.email "lusickijstepan@gmail.com"
-	                git config --global user.name "StepanLush"
-	                git add k8s/deployment.yaml
-	                git commit -m "Update deployment.yaml with new Docker image tag ${DOCKER_IMAGE_TAG}"
-	                git push origin master
-	            '''
+                    sh '''
+                        git config --global user.email "lusickijstepan@gmail.com"
+                        git config --global user.name "StepanLush"
+                        git add values.yaml
+                        git commit -m "Update values.yaml with new Docker image tag ${DOCKER_IMAGE_TAG}"
+                        git push origin main
+                    '''
                 }
             }
         }
 
-        stage('Deploy to Minikube') {
+        stage('Helm Upgrade') {
             steps {
                 script {
-                    sh 'kubectl --kubeconfig /var/lib/jenkins/.kube/config apply -f k8s/deployment.yaml'
-                    sh 'kubectl --kubeconfig /var/lib/jenkins/.kube/config apply -f k8s/service.yaml'
+                    sh '''
+                        helm upgrade my-release ./ -f values.yaml
                 }
             }
+        }
+    }
+
+    post {
+        failure {
+            mail to: 'you@example.com',
+                subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
+                body: "Something went wrong. Please check the Jenkins console output at ${env.BUILD_URL}."
         }
     }
 }
